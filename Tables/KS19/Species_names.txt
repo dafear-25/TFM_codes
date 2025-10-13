@@ -1,0 +1,13 @@
+Carbon
+Nitrogen
+Oxygen
+Neon
+Sodium
+Magnesium
+Aluminium
+Silicon
+Sulphur
+Argon
+Calcium
+Iron
+Nickel
