@@ -2,8 +2,6 @@
 #Model 2D -MetalFree
 
 
-#Importar dataset i folder
-
 import os, numpy as np, h5py, torch, matplotlib, matplotlib.pyplot as plt
 import pyLOM, pyLOM.NN
 import math    
