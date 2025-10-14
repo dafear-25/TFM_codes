@@ -253,8 +253,7 @@ plt.savefig(RESUDIR + '/scaled_newdata.png', dpi=900)
 scaled_preds_2 = dataInverseScaling(scaled_preds_2,Xmin,1.01,1e10)
 
 plt.figure()
-#plt.loglog(T,np.abs(X[0,:,40]),label="Original data")
-#plt.loglog(T,np.abs(X[:,0].reshape((len(T),len(nH)))[:,40]),label="Original data")
+
 plt.loglog(T,np.abs(X[:,40]),label="Original data")
 plt.loglog(T,np.abs(scaled_preds),label="MLP prediction")
 #plt.title('Normalized, absolute, net cooling rates - Metal Free with prediction model and original data')
