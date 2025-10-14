@@ -391,7 +391,7 @@ plt.savefig(RESUDIR + '/MLP_MetalFree_out_predicted.png',dpi=900)
 #Plot error between predicted and original data
 plt.figure()
 
-plt.contourf(T,nH,(error_0).T,cmap='RdYlGn')#plt.colormaps.diverging)
+plt.contourf(T,nH,(error_0).T,cmap='RdYlGn')
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel(r'$\mathrm{T \ (K)}$')
