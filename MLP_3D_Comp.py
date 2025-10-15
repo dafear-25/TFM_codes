@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+#
+# MLP 3D for Metal Free - Full model for z=0, considering n_He/n_H as a parameter
+# Last version 29/08/2025
+
 
 import os, numpy as np, h5py, torch, matplotlib, matplotlib.pyplot as plt
 import pyLOM, pyLOM.NN
@@ -266,4 +271,273 @@ true_vs_pred_plot(scaled_y, scaled_preds, RESUDIR + '/3D_Comp_scatter.png')
 true_vs_pred_plot_regression(scaled_y, scaled_preds, RESUDIR + '/3D_Comp_regression.png')
 
 plot_train_test_loss(training_logs['train_loss'], training_logs['test_loss'], RESUDIR + '/train_test_loss.png')
+
+plt.figure()
+
+plt.subplot(1,2,1)
+plt.plot(td_test[:][0][:,0],td_test[:][1],'.',label='Data')
+plt.plot(td_test[:][0][:,0],preds,'.',label='MLP')
+plt.xlabel(r'$\mathrm{Scaled\  Temperature \ K }$')
+plt.ylabel(r'$\mathrm{Scaled\  |\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+plt.legend()
+
+plt.subplot(1,2,2)
+plt.plot(td_test[:][0][:,1],td_test[:][1],'.',label='Data')
+plt.plot(td_test[:][0][:,1],preds,'.',label='MLP')
+plt.xlabel(r'$\mathrm{Scaled\  nH \ cm^{-3}}$')
+#plt.ylabel(r'$\mathrm{Scaled\  |\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+plt.legend()
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_traintest.png',dpi=900)
+
+
+
+print('Evaluating model full dataset...')
+
+## Evaluate the model with the full dataset
+preds = model.predict(dataset, batch_size=250)
+scaled_x     = input_scaler.inverse_transform(dataset[:][0])
+scaled_y     = output_scaler.inverse_transform(dataset[:][1])
+scaled_preds = output_scaler.inverse_transform(preds)
+
+
+#Reverse varibles and data scaling
+scaled_x     = np.exp(scaled_x)
+
+scaled_y= dataInverseScaling(scaled_y,Xmin,1.01,1e10)
+scaled_preds=dataInverseScaling(scaled_preds,Xmin,1.01,1e10)
+
+printAverages('X',X)
+printAverages('scaled_preds',scaled_preds)
+
+
+print('Error calculation...')
+
+error_0= ( (( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:]  -X[:,0].reshape((len(T),len(nH))) )/(X[:,0].reshape((len(T),len(nH)))))*100 )
+error_3= ( (( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[3,:,:]  -X[:,3].reshape((len(T),len(nH))) )/(X[:,3].reshape((len(T),len(nH)))))*100 )
+error_7= ( (( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[7,:,:]  -X[:,7].reshape((len(T),len(nH))) )/(X[:,7].reshape((len(T),len(nH)))))*100 )
+error_10=( (( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:] -X[:,10].reshape((len(T),len(nH))) )/(X[:,10].reshape((len(T),len(nH)))))*100 )
+
+
+print('Final plots...')
+
+#Mesh plot original data, predicted data and associated error
+
+#Plot original data from dataset
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(X[:,0].reshape((len(T),len(nH))))).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Original_3D_0.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(X[:,3].reshape((len(T),len(nH))))).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Original_3D_3.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(X[:,7].reshape((len(T),len(nH))))).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Original_3D_7.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(X[:,10].reshape((len(T),len(nH))))).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Original_3D_10.png',dpi=900)
+
+
+
+
+
+
+
+#Plot predicted data with original points
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Predicted_3D_0.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[3,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Predicted_3D_3.png',dpi=900)
+
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[7,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Predicted_3D_7.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,(np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/Predicted_3D_10.png',dpi=900)
+
+
+
+
+
+
+
+#Plot error between predicted and original data
+plt.figure()
+
+plt.contourf(T,nH,error_0.T,cmap='RdYlGn')#plt.colormaps.diverging)
+#plt.contourf(T,nH,( ((abs(X[:,0].reshape((len(T),len(nH))))-abs( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:] ) )/(abs(X[:,0].reshape((len(T),len(nH))))))*100 ).T,cmap='RdYlGn')#plt.colormaps.diverging)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+
+plt.savefig(RESUDIR + '/Error_3D_0.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,( error_3).T,cmap='RdYlGn')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+
+plt.savefig(RESUDIR + '/Error_3D_3.png',dpi=900)
+
+
+
+plt.figure()
+
+plt.contourf(T,nH,( error_7).T,cmap='RdYlGn')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+
+plt.savefig(RESUDIR + '/Error_3D_7.png',dpi=900)
+
+
+
+plt.figure()
+#plt.contourf(T,nH,( ((abs(X[:,10].reshape((len(T),len(nH))))-abs( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:] ) )/(abs(X[:,10].reshape((len(T),len(nH))))))*100 ).T,cmap='RdYlGn')
+plt.contourf(T,nH,(error_10).T,cmap='RdYlGn')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{T \ (K)}$')
+plt.ylabel(r'$\mathrm{nH \ (cm^{-3})}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+
+#cbar.ax.set_ylabel(r'Absolute difference between original and predicted data')
+
+plt.savefig(RESUDIR + '/Error_3D_10.png',dpi=900)
+
+
+
+
+
+
+
+
+
+
+
+
+pyLOM.cr_info()
+plt.show()
 
