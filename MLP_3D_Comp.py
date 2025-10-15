@@ -117,8 +117,8 @@ print('Shape X: ', X.shape)
 printAverages('lam',X)
 
 ## Obtain pyLOM.NN dataset
-input_scaler  = pyLOM.NN.MinMaxScaler()         #MinMaxScalerLog()
-output_scaler = pyLOM.NN.MinMaxScaler()         #MinMaxScalerLog()
+input_scaler  = pyLOM.NN.MinMaxScaler()         
+output_scaler = pyLOM.NN.MinMaxScaler()         
 
 print('Creating dataset...')
 
@@ -218,7 +218,7 @@ training_params = {
     "epochs": 750, 
     "lr": 0.0001,
     "lr_gamma": 0.99,
-    "lr_scheduler_step": 15,#15,
+    "lr_scheduler_step": 15,
     "batch_size": 512,
     "loss_fn": torch.nn.MSELoss(),
     "optimizer_class": torch.optim.Adam,
@@ -272,6 +272,7 @@ true_vs_pred_plot_regression(scaled_y, scaled_preds, RESUDIR + '/3D_Comp_regress
 
 plot_train_test_loss(training_logs['train_loss'], training_logs['test_loss'], RESUDIR + '/train_test_loss.png')
 
+
 plt.figure()
 
 plt.subplot(1,2,1)
@@ -291,7 +292,6 @@ plt.legend()
 plt.savefig(RESUDIR + '/MLP_MetalFree_traintest.png',dpi=900)
 
 
-
 print('Evaluating model full dataset...')
 
 ## Evaluate the model with the full dataset
@@ -299,6 +299,54 @@ preds = model.predict(dataset, batch_size=250)
 scaled_x     = input_scaler.inverse_transform(dataset[:][0])
 scaled_y     = output_scaler.inverse_transform(dataset[:][1])
 scaled_preds = output_scaler.inverse_transform(preds)
+
+
+#Evaluate variable 1D scaled
+plt.figure()
+
+plt.subplot(2,2,1)
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,0],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[0,:,40])
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,0],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[0,:,40])
+
+plt.subplot(2,2,2)
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,0],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[3,:,40])
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,0],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[3,:,40])
+
+plt.subplot(2,2,3)
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,0],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[7,:,40])
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,0],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[7,:,40])
+
+plt.subplot(2,2,4)
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,0],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[10,:,40])
+plt.plot(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,0],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[10,:,40])
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_scaled_nH_vs_scaled_y_preds.png',dpi=900)
+
+
+#Evaluate variables scaled contourplot
+plt.figure()
+
+plt.subplot(2,4,1)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],cmap=plt.cm.jet) #watch transposed scaled_y
+plt.subplot(2,4,2)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],cmap=plt.cm.jet) #watch transposed scaled_preds
+
+plt.subplot(2,4,3)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],cmap=plt.cm.jet) #watch transposed scaled_y
+plt.subplot(2,4,4)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],cmap=plt.cm.jet) #watch transposed scaled_preds
+
+plt.subplot(2,4,5)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],cmap=plt.cm.jet) #watch transposed scaled_y
+plt.subplot(2,4,6)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],cmap=plt.cm.jet) #watch transposed scaled_preds
+
+plt.subplot(2,4,7)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],cmap=plt.cm.jet) #watch transposed scaled_y
+plt.subplot(2,4,8)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],cmap=plt.cm.jet) #watch transposed scaled_preds
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_scaled_T_nH_vs_scaled_y_preds_contour.png',dpi=900)
 
 
 #Reverse varibles and data scaling
@@ -309,6 +357,249 @@ scaled_preds=dataInverseScaling(scaled_preds,Xmin,1.01,1e10)
 
 printAverages('X',X)
 printAverages('scaled_preds',scaled_preds)
+
+
+#Evaluate variable 1D with output
+plt.figure()
+
+plt.subplot(2,2,1)
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,0],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[0,:,40]), label='data')
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,0],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[0,:,40]), label='MLP')
+#plt.title('Normalized, absolute, net cooling rates - Metal Free')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+plt.ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,2,2)
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,0],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[3,:,40]), label='data')
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,0],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[3,:,40]), label='MLP')
+#plt.title('Normalized, absolute, net cooling rates - Metal Free')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,2,3)
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,0],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[7,:,40]), label='data')
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,0],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[7,:,40]), label='MLP')
+#plt.title('Normalized, absolute, net cooling rates - Metal Free')
+plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,2,4)
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,0],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH)))[10,:,40]), label='data')
+plt.loglog(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,0],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH)))[10,:,40]), label='MLP')
+#plt.title('Normalized, absolute, net cooling rates - Metal Free')
+plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_T_vs_lam_vs_preds.png',dpi=900)
+
+
+
+#Evaluate dataset vs predictions contourplot
+plt.figure()
+
+plt.subplot(2,4,1)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,4,2)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[0,:,:],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+
+plt.subplot(2,4,3)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH))))[3,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,4,4)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[3,:,:],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[3,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+
+plt.subplot(2,4,5)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH))))[7,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,4,6)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[7,:,:],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[7,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+
+plt.subplot(2,4,7)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],np.abs(scaled_y.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+#cbar = plt.colorbar()
+#cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.subplot(2,4,8)
+plt.contourf(scaled_x[:,0].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],scaled_x[:,1].reshape((len(nhe_nh),len(T),len(nH)))[10,:,:],np.abs(scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:],locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+#plt.xlabel(r'$\mathrm{Temperature \ K}$')
+#plt.ylabel(r'$\mathrm{Density \ kg/m^3}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+#plt.tight_layout()
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_scaled_x_vs_scaled_y_and_scaled_preds.png',dpi=900)
+
+
+
+
+print('Generating more points...')
+
+## Generate more points on the data and evaluate
+# Interpolate points
+T_new      = np.interp(np.arange(500),np.arange(len(T)),T)
+nH_new     = np.interp(np.arange(200),np.arange(len(nH)),nH)
+
+nhe_nh_new=nhe_nh
+
+# Build xyz from T and nH
+xx,yy = np.meshgrid(T_new,nH_new,indexing='ij')
+xyz = np.zeros((len(T_new)*len(nH_new),2),T.dtype)
+xyz[:,0] = xx.flatten()
+xyz[:,1] = yy.flatten()
+
+
+# Generate new dataset
+dataset_2 = pyLOM.NN.Dataset(
+    variables_out=(np.zeros((len(T_new)*len(nH_new),len(nhe_nh_new))),),
+    variables_in=np.log(xyz),
+    parameters=[d.get_variable('nHe_nH')],
+    inputs_scaler=input_scaler,
+    outputs_scaler=output_scaler,
+    snapshots_by_column=True
+)
+
+print('Evaluating model more points...')
+
+# Evaluate new dataset with saved model
+preds_2 = model.predict(dataset_2, batch_size=250)
+
+scaled_x2    = input_scaler.inverse_transform(dataset_2[:][0])
+scaled_preds_2 = output_scaler.inverse_transform(preds_2)
+
+
+
+plt.figure()
+
+plt.subplot(2,2,1)
+plt.contourf(scaled_x2[:,0].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[0,:,:],scaled_x2[:,1].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[0,:,:],scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[0,:,:],cmap=plt.cm.jet)
+
+plt.subplot(2,2,2)
+plt.contourf(scaled_x2[:,0].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[3,:,:],scaled_x2[:,1].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[3,:,:],scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[3,:,:],cmap=plt.cm.jet)
+
+plt.subplot(2,2,3)
+plt.contourf(scaled_x2[:,0].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[7,:,:],scaled_x2[:,1].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[7,:,:],scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[7,:,:],cmap=plt.cm.jet)
+
+plt.subplot(2,2,4)
+plt.contourf(scaled_x2[:,0].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[10,:,:],scaled_x2[:,1].reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[10,:,:],scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new)))[10,:,:],cmap=plt.cm.jet)
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_scaled_x2_vs_scaled_preds.png',dpi=900)
+
+
+
+#Reverse varibles and data scaling
+
+#scaled_preds_2 = np.exp(scaled_preds_2) - 1.01*np.abs(Xmin)
+#scaled_preds_2=np.power(10,scaled_preds_2)/(1e10) - 1.01*np.abs(Xmin)
+scaled_preds_2=dataInverseScaling(scaled_preds_2,Xmin,1.01,1e10)
+
+printAverages('X',X)
+printAverages('scaled_preds_2',scaled_preds_2)
+
+
+plt.figure() #
+
+plt.subplot(2,2,1)
+plt.contourf(T_new,nH_new,(np.abs(scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new))))[0,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.ylabel(r'$\mathrm{Density \ cm^{-3}}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+
+
+plt.subplot(2,2,2)
+plt.contourf(T_new,nH_new,(np.abs(scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new))))[3,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+
+
+plt.subplot(2,2,3)
+plt.contourf(T_new,nH_new,(np.abs(scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new))))[7,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(r'$\mathrm{Temperature \ K}$')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+
+
+plt.subplot(2,2,4)
+plt.contourf(T_new,nH_new,(np.abs(scaled_preds_2.reshape((len(nhe_nh_new),len(T_new),len(nH_new))))[10,:,:]).T,locator=matplotlib.ticker.LogLocator(),cmap=plt.cm.jet)
+plt.xscale('log')
+plt.yscale('log')
+plt.xlim([1e2, 1e9])
+plt.ylim([1e-8, 1e0])
+cbar = plt.colorbar()
+cbar.ax.set_ylabel(r'$\mathrm{|\Lambda \ / \ n_{H}^2| \ (erg\ cm^3\ s^{-1})}$')
+
+plt.savefig(RESUDIR + '/MLP_MetalFree_more_points_out.png',dpi=900)
+
+
 
 
 print('Error calculation...')
@@ -469,7 +760,7 @@ plt.savefig(RESUDIR + '/Predicted_3D_10.png',dpi=900)
 plt.figure()
 
 plt.contourf(T,nH,error_0.T,cmap='RdYlGn')#plt.colormaps.diverging)
-#plt.contourf(T,nH,( ((abs(X[:,0].reshape((len(T),len(nH))))-abs( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[0,:,:] ) )/(abs(X[:,0].reshape((len(T),len(nH))))))*100 ).T,cmap='RdYlGn')#plt.colormaps.diverging)
+
 plt.xscale('log')
 plt.yscale('log')
 plt.xlabel(r'$\mathrm{T \ (K)}$')
@@ -513,7 +804,7 @@ plt.savefig(RESUDIR + '/Error_3D_7.png',dpi=900)
 
 
 plt.figure()
-#plt.contourf(T,nH,( ((abs(X[:,10].reshape((len(T),len(nH))))-abs( (scaled_preds.reshape((len(nhe_nh),len(T),len(nH))))[10,:,:] ) )/(abs(X[:,10].reshape((len(T),len(nH))))))*100 ).T,cmap='RdYlGn')
+
 plt.contourf(T,nH,(error_10).T,cmap='RdYlGn')
 plt.xscale('log')
 plt.yscale('log')
